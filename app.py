@@ -23,7 +23,7 @@ if SRC_DIR not in sys.path:
 from department import recommend_department
 from resolution import recommend_resolution
 from verification import calculate_verification_risk
-
+from priority import calculate_priority
 
 
 # LOAD ML MODEL
@@ -104,126 +104,6 @@ def predict_category(model, complaint):
         confidence = max(probabilities) * 100
 
     return str(prediction), confidence
-
-
-# --------------------------------------------------
-# PRIORITY ENGINE
-# --------------------------------------------------
-
-def calculate_priority(complaint, category):
-
-    text = complaint.lower()
-
-    score = 0
-    reasons = []
-
-    # Essential services
-    essential_categories = [
-        "Water",
-        "Electricity",
-        "Healthcare",
-        "Sanitation"
-    ]
-
-    if category in essential_categories:
-
-        score += 20
-
-        reasons.append(
-            "Essential public service affected"
-        )
-
-    # Emergency language
-    emergency_words = [
-        "emergency",
-        "urgent",
-        "accident",
-        "injured",
-        "danger",
-        "critical",
-        "immediately"
-    ]
-
-    if any(word in text for word in emergency_words):
-
-        score += 25
-
-        reasons.append(
-            "Urgent or emergency situation mentioned"
-        )
-
-    # Vulnerable population
-    vulnerable_words = [
-        "elderly",
-        "children",
-        "child",
-        "disabled",
-        "senior citizens",
-        "pregnant",
-        "vulnerable"
-    ]
-
-    if any(word in text for word in vulnerable_words):
-
-        score += 15
-
-        reasons.append(
-            "Vulnerable population mentioned"
-        )
-
-    # Duration
-    duration_words = [
-        "days",
-        "week",
-        "weeks",
-        "months",
-        "since yesterday",
-        "for three days",
-        "for four days"
-    ]
-
-    if any(word in text for word in duration_words):
-
-        score += 15
-
-        reasons.append(
-            "Problem has continued for several days"
-        )
-
-    # Public safety
-    safety_words = [
-        "pothole",
-        "accident",
-        "injured",
-        "fire",
-        "danger",
-        "dangerous",
-        "unsafe",
-        "broken road"
-    ]
-
-    if any(word in text for word in safety_words):
-
-        score += 20
-
-        reasons.append(
-            "Potential public safety risk"
-        )
-
-    # Cap score
-    score = min(score, 100)
-
-    # Priority level
-    if score >= 70:
-        level = "HIGH"
-
-    elif score >= 40:
-        level = "MEDIUM"
-
-    else:
-        level = "LOW"
-
-    return score, level, reasons
 
 
 # PAGE CONFIG

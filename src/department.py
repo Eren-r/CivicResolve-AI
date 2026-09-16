@@ -3,7 +3,6 @@
 
 
 DEPARTMENT_MAP = {
-
     "Water": {
         "department": "Water Supply Department",
         "officer": "Water Supply Officer",
@@ -56,16 +55,11 @@ DEPARTMENT_MAP = {
 
 def recommend_department(category):
 
-    recommendation = DEPARTMENT_MAP.get(
+    return DEPARTMENT_MAP.get(
         category,
         DEPARTMENT_MAP["Other"]
     )
 
-    return recommendation
-
-
-
-# TEST
 
 if __name__ == "__main__":
 
@@ -84,21 +78,9 @@ if __name__ == "__main__":
 
         result = recommend_department(category)
 
-        print("\n" + "=" * 55)
+        print("\n" + "=" * 60)
 
         print("Category:", category)
-
-        print(
-            "Department:",
-            result["department"]
-        )
-
-        print(
-            "Responsible Officer:",
-            result["officer"]
-        )
-
-        print(
-            "Recommended Action:",
-            result["action"]
-        )
+        print("Department:", result["department"])
+        print("Responsible Officer:", result["officer"])
+        print("Recommended Action:", result["action"])

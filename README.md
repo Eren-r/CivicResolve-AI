@@ -32,3 +32,7 @@ AI-04: Develop an AI-powered public grievance analysis and resolution recommenda
 ## AI Usage
 
 AI-assisted development tools were used during the hackathon. The team reviewed, tested, modified, and integrated the generated material into the final implementation.
+
+## Live link
+
+https://civicresolve-ai-of4uggkufqm3qctm8bogvj.streamlit.app/

@@ -48,6 +48,13 @@ st.set_page_config(
     layout="wide"
 )
 
+# ============================================================
+# SESSION COMPLAINT HISTORY
+# ============================================================
+
+if "submitted_complaints" not in st.session_state:
+    st.session_state.submitted_complaints = []
+
 
 # ============================================================
 # CUSTOM CSS
@@ -493,6 +500,16 @@ if analyze:
         complaint
     )
 
+    # ========================================================
+    # LOW-CONFIDENCE CLASSIFICATION SAFEGUARD
+    # ========================================================
+
+    LOW_CONFIDENCE_THRESHOLD = 60
+
+    low_confidence = (
+        confidence is not None
+        and confidence < LOW_CONFIDENCE_THRESHOLD
+    )   
 
     # ========================================================
     # 2. PRIORITY
@@ -510,14 +527,26 @@ if analyze:
     # 3. VERIFICATION
     # ========================================================
 
-    previous_complaints = (
-        load_previous_complaints()
+    previous_complaints = load_previous_complaints()
+
+    # Include complaints submitted during the current session
+    session_complaints = st.session_state.submitted_complaints
+
+    verification_history = (
+        previous_complaints
+        + session_complaints
     )
 
     verification = calculate_verification_risk(
         complaint,
-        previous_complaints
+        verification_history
     )
+
+    # Store the complaint for future duplicate checks
+    if complaint not in st.session_state.submitted_complaints:
+        st.session_state.submitted_complaints.append(
+            complaint
+        )
 
 
     # ========================================================
@@ -618,7 +647,7 @@ if analyze:
             confidence_icon = "🟢"
 
 
-        elif confidence >= 60:
+        elif confidence >= LOW_CONFIDENCE_THRESHOLD:
 
             confidence_status = (
                 "Moderate confidence"
@@ -640,8 +669,8 @@ if analyze:
 
             confidence_message = (
                 "The model has limited confidence in this "
-                "classification. Consider manual review "
-                "before escalation."
+                "classification. Manual review is recommended "
+                "before departmental escalation."
             )
 
             confidence_icon = "🔴"
@@ -679,6 +708,16 @@ Predicted Category
             f"{confidence_icon} **{confidence_status}** — "
             f"{confidence_message}"
         )
+
+        if low_confidence:
+
+            st.warning(
+                "⚠️ **HUMAN REVIEW RECOMMENDED** — "
+                "The AI classification confidence is below "
+                f"{LOW_CONFIDENCE_THRESHOLD}%. "
+                "Verify the complaint category before "
+                "departmental escalation."
+            )
 
 
     # ========================================================
@@ -1095,37 +1134,50 @@ Verification Score:
     if verification["risk_level"] == "HIGH":
 
         st.warning(
-            """
+        """
 ⚠️ **MANUAL VERIFICATION REQUIRED**
 
 The complaint contains verification signals.
 Review the complaint before escalation.
 """
-        )
+    )
+
+
+    elif low_confidence:
+
+        st.warning(
+        """
+⚠️ **CLASSIFICATION REVIEW REQUIRED**
+
+The AI model has low confidence in the predicted
+category. Verify the category before departmental
+escalation.
+"""
+    )
 
 
     elif priority_level == "HIGH":
 
         st.error(
-            """
+        """
 🚨 **PRIORITY ESCALATION**
 
 Forward the complaint to the recommended
 department for urgent review.
 """
-        )
+    )
 
 
     else:
 
         st.success(
-            """
+        """
 ✅ **STANDARD PROCESSING**
 
 Forward the complaint to the recommended
 department for normal verification and resolution.
 """
-        )
+    )
 
 
 # ============================================================

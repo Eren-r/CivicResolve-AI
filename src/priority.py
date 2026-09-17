@@ -127,7 +127,7 @@ def calculate_priority(complaint, category):
                 reasons.append("Problem has continued for a long duration")
 
             elif number >= 3:
-                score += 10
+                score += 20
                 reasons.append("Problem has continued for several days")
 
             elif number >= 1:
